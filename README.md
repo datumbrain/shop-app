@@ -5,7 +5,7 @@ This mobile app has some basic features that any shopping app has.
 
 1. Clone the repository: Clone the Git repository using the following command in your terminal or command prompt:
     ```bash 
-    git clone git@github.com:datumbrain/flutter-sponge-app.git
+    git clone git@github.com:datumbrain/shop-app.git
     ```
 2. Install dependencies: Navigate to the cloned repository directory in your terminal or command prompt and run the following command:
     ```bash 
