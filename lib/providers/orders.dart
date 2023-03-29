@@ -22,13 +22,14 @@ class OrderItem {
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
   final String? authToken;
-  Orders(this.authToken,this._orders);
+  final String? userId;
+  Orders(this.authToken,this.userId,this._orders);
   List<OrderItem> get orders{
     return [..._orders];
   }
 
   Future<void> fetchAndSetOrders() async {
-    final url = Uri.parse('https://my-shop-app-1-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
+    final url = Uri.parse('https://my-shop-app-1-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
     final response = await http.get(url);
     final List<OrderItem> loadedOrders = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -57,7 +58,7 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async{
-    final url = Uri.parse('https://my-shop-app-1-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
+    final url = Uri.parse('https://my-shop-app-1-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken');
     final timeStamp = DateTime.now();
     final response = await http.post(
       url,
@@ -87,3 +88,28 @@ class Orders with ChangeNotifier {
     notifyListeners();
   }
 }
+
+// Future<bool> autoLogin () async{
+//     final prefs = await SharedPreferences.getInstance();
+//     if(prefs.containsKey('userData')){
+//       return false;
+//     }
+//     final extractedData = json.decode(prefs.getString('userData')!) as Map<String, Object>;
+//     final expiryTime = DateTime.parse(extractedData['expiryTime'] as String);
+
+//     if(expiryTime.isBefore(DateTime.now())){
+//       return false;
+//     }
+//     _token = extractedData['token'] as String ;
+//     _userId = extractedData['userId'] as String;
+//     _expireTime =expiryTime;
+//     notifyListeners();
+//     _autoLogOut();
+//     return true;
+//   }
+
+//   final prefs = await SharedPreferences.getInstance();
+//   final userData = json.encode({'token':_token,'userId': _userId, 'expiryTime': _expireTime?.toIso8601String()});
+//   prefs.setString('userData', userData);
+
+// import 'package:shared_preferences/shared_preferences.dart';
