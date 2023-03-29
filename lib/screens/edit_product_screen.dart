@@ -29,6 +29,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     'price' : '', 
     'imageUrl' : ''};
   var isInit = true;
+  var isLoading = false; 
 
   @override
   void initState() {
@@ -80,23 +81,51 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm(){
+  Future<void> _saveForm() async{
     final isValid = _form.currentState?.validate();
     if (!isValid!){
       return ;
     }
     _form.currentState?.save();
+    setState(() {
+      isLoading = true;
+    });
     if(editedProduct.id != ''){
-      Provider.of<Products>(context,listen: false)
+      await Provider.of<Products>(context,listen: false)
         .updateProduct(editedProduct.id, editedProduct);
+      
     }else{
-      Provider.of<Products>(context,listen: false).addProduct(editedProduct);
+      try{
+        await Provider.of<Products>(context,listen: false)
+        .addProduct(editedProduct);
+      }
+      catch (error) {
+        await showDialog(
+          context: context, 
+          builder: (ctx) => AlertDialog(
+            title:const Text('An Error Occurred'),
+            content:const Text('Something went wrong'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                }, 
+                child: const Text('Okay'))
+            ],
+          )
+        );
+      }
+      // finally {
+      //   setState(() {
+      //     isLoading = false;
+      //   });
+      //   Navigator.of(context).pop();
+      // }
     }
+    setState(() {
+      isLoading = false;
+    });
     Navigator.of(context).pop();
-    // print(editedProduct.title);
-    // print(editedProduct.description);
-    // print(editedProduct.price);
-    // print(editedProduct.imageUrl);
   }
 
   @override
@@ -111,7 +140,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
           )
         ],
       ),
-      body: Padding(
+      body: isLoading 
+      ? const Center(
+        child: CircularProgressIndicator(),
+      ) 
+      : Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _form,
